@@ -24,7 +24,6 @@ ARG PECL_EXT="xdebug-2.9.2 mcrypt-1.0.3 imagick-3.4.4"
 RUN pecl install $PECL_EXT
 
 ARG PHP_EXT="gd mysqli pdo_mysql opcache pspell bcmath exif zip"
-
 RUN docker-php-ext-configure gd --with-freetype-dir=/usr --with-jpeg-dir=/usr --with-png-dir=/usr; \
 		docker-php-ext-install -j "$(nproc)" $PHP_EXT
 

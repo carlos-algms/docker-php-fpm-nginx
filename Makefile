@@ -1,7 +1,7 @@
 IMAGE=carlosalgms/docker-php-fpm-nginx
 
 build_5: PECL_EXT=xdebug-2.5.5 mcrypt-1.0.3 imagick-3.4.4
-build_5: PHP_EXT=gd mysql mysqli pdo_mysql opcache pspell mcrypt
+build_5: PHP_EXT=gd mysql mysqli pdo_mysql opcache pspell mcrypt bcmath exif zip
 build_5: ENABLE_EXT=xdebug mcrypt imagick
 build_5: TAG=5.6-fpm
 build_5:
