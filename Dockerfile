@@ -27,10 +27,11 @@ RUN docker-php-ext-install $PHP_EXT
 ARG ENABLE_EXT
 RUN docker-php-ext-enable $ENABLE_EXT
 
-COPY ["nginx.conf", "/etc/nginx/conf.d/default.conf"]
+COPY ["nginx.conf", "/etc/nginx/sites-available/default"]
 COPY ["xdebug.ini", "/usr/local/etc/php/conf.d/"]
 COPY ["php.ini", "/usr/local/etc/php/conf.d/"]
+COPY ["cmd.sh", "/"]
 
-RUN php-fpm --daemonize --allow-to-run-as-root
+RUN chmod +x /cmd.sh
 
-CMD ["nginx"]
+CMD ["/cmd.sh"]
