@@ -3,14 +3,16 @@ FROM $MYAPP_IMAGE
 
 LABEL maintainer="Carlos A. Gomes <carlos.algms@gmail.com>"
 
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y --no-install-recommends \
+		aspell \
 		libfreetype6-dev \
 		libjpeg62-turbo-dev \
-		libpng-dev \
+		libmagickwand-dev \
 		libmcrypt-dev \
+		libpng-dev \
 		libpspell-dev \
 		libxml2-dev \
-		aspell \
+		libzip-dev \
 		nginx \
 	&& rm -rf /var/cache/debconf/*-old \
 	&& rm -rf /usr/share/doc/* \
@@ -18,20 +20,22 @@ RUN apt-get update && apt-get install -y \
 	&& rm -rf /var/cache/apt/*
 
 
-ARG PECL_EXT="xdebug-2.9.2 mcrypt-1.0.3"
+ARG PECL_EXT="xdebug-2.9.2 mcrypt-1.0.3 imagick-3.4.4"
 RUN pecl install $PECL_EXT
 
-ARG PHP_EXT="gd mysqli pdo_mysql opcache pspell xml"
-RUN docker-php-ext-install $PHP_EXT
+ARG PHP_EXT="gd mysqli pdo_mysql opcache pspell bcmath exif zip"
 
-ARG ENABLE_EXT="${PHP_EXT} xdebug mcrypt"
+RUN docker-php-ext-configure gd --with-freetype-dir=/usr --with-jpeg-dir=/usr --with-png-dir=/usr; \
+		docker-php-ext-install -j "$(nproc)" $PHP_EXT
+
+ARG ENABLE_EXT="xdebug mcrypt imagick"
 RUN docker-php-ext-enable $ENABLE_EXT
 
 COPY ["nginx.conf", "/etc/nginx/sites-available/default"]
 COPY ["xdebug.ini", "/usr/local/etc/php/conf.d/"]
 COPY ["php.ini", "/usr/local/etc/php/conf.d/"]
-COPY ["cmd.sh", "/"]
+COPY ["run-nginx-with-php.sh", "/"]
 
-RUN chmod +x /cmd.sh
+RUN chmod +x /run-nginx-with-php.sh
 
-CMD ["/cmd.sh"]
+CMD ["/run-nginx-with-php.sh"]
