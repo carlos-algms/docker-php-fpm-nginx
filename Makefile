@@ -22,3 +22,9 @@ build:
 		-f Dockerfile \
 		--build-arg MYAPP_IMAGE=php:$(TAG) \
 		.
+
+publish:
+	docker push carlosalgms/docker-php-fpm-nginx:7-fpm
+
+publish_5:
+	docker push carlosalgms/docker-php-fpm-nginx:5.6-fpm
