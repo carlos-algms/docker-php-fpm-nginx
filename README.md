@@ -8,7 +8,7 @@ PS: It was not meant to be a production Image, it includes XDebug.
 
 ## How to use
 Nginx will serve everything under `/var/www/html`  
-Just mound a volume under that folder  
+Just mount a volume under that folder  
 and, remap the PORTS as you wish:
 
 ```shell
