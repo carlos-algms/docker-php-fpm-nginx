@@ -14,6 +14,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 		libxml2-dev \
 		libzip-dev \
 		nginx \
+		supervisor \
 	&& rm -rf /var/cache/debconf/*-old \
 	&& rm -rf /usr/share/doc/* \
 	&& rm -rf /var/lib/apt/lists/* \
@@ -30,11 +31,15 @@ RUN docker-php-ext-configure gd --with-freetype-dir=/usr --with-jpeg-dir=/usr --
 ARG ENABLE_EXT="xdebug mcrypt imagick"
 RUN docker-php-ext-enable $ENABLE_EXT
 
+# Add Tini
+ADD https://github.com/krallin/tini/releases/download/v0.19.0/tini /usr/bin/tini
+RUN chmod +x /usr/bin/tini
+
+ENTRYPOINT ["tini", "--"]
+
 COPY ["nginx.conf", "/etc/nginx/sites-available/default"]
 COPY ["xdebug.ini", "/usr/local/etc/php/conf.d/"]
 COPY ["php.ini", "/usr/local/etc/php/conf.d/"]
-COPY ["run-nginx-with-php.sh", "/"]
+COPY ["php-nginx-supervisor.conf", "/etc/supervisor/conf.d/"]
 
-RUN chmod +x /run-nginx-with-php.sh
-
-CMD ["/run-nginx-with-php.sh"]
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/supervisord.conf", "-n"]
