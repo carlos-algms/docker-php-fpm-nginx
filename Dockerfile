@@ -41,5 +41,6 @@ COPY ["nginx.conf", "/etc/nginx/sites-available/default"]
 COPY ["xdebug.ini", "/usr/local/etc/php/conf.d/"]
 COPY ["php.ini", "/usr/local/etc/php/conf.d/"]
 COPY ["php-nginx-supervisor.conf", "/etc/supervisor/conf.d/"]
+COPY ["php-fpm-log.conf", "/usr/local/etc/php-fpm.d/"]
 
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/supervisord.conf", "-n"]
