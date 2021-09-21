@@ -15,6 +15,16 @@ and, remap the PORTS as you wish:
 docker run --rm -it -p 8080:80 --volume ./local/path:/var/www/http carlosalgms/docker-php-fpm-nginx:7-fpm
 ```
 
+## Change the root path
+
+Frameworks like `Laravel` use a different public path for security reasons.
+
+Set the `ROOT_PATH` environment variable to set Nginx `root` direct. 
+
+```shell
+docker run --rm -it -p 8080:80 -e ROOT_PATH=/var/www/public --volume ./local/laravel-project:/var/www/http carlosalgms/docker-php-fpm-nginx:7-fpm
+```
+
 ## What is Included? 
 
 * PHP 7 or 5.6

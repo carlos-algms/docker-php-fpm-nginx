@@ -5,6 +5,7 @@ LABEL maintainer="Carlos A. Gomes <carlos.algms@gmail.com>"
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
 		aspell \
+		gettext-base \
 		libfreetype6-dev \
 		libjpeg62-turbo-dev \
 		libmagickwand-dev \
@@ -37,10 +38,13 @@ RUN chmod +x /usr/bin/tini
 
 ENTRYPOINT ["tini", "--"]
 
-COPY ["nginx.conf", "/etc/nginx/sites-available/default"]
+COPY ["default-site.conf", "/etc/nginx/sites-available/default"]
+COPY ["snippets/*", "/etc/nginx/snippets/"]
 COPY ["xdebug.ini", "/usr/local/etc/php/conf.d/"]
 COPY ["php.ini", "/usr/local/etc/php/conf.d/"]
 COPY ["php-nginx-supervisor.conf", "/etc/supervisor/conf.d/"]
 COPY ["php-fpm-log.conf", "/usr/local/etc/php-fpm.d/"]
 
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/supervisord.conf", "-n"]
+CMD export ROOT_PATH=${ROOT_PATH:-/var/www/html} && \
+	envsubst < /etc/nginx/snippets/root.conf.template > /etc/nginx/snippets/root.conf && \
+	/usr/bin/supervisord -c /etc/supervisor/supervisord.conf -n
