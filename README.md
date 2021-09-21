@@ -30,7 +30,7 @@ docker run --rm -it -p 8080:80 -e ROOT_PATH=/var/www/public --volume ./local/lar
 * PHP 7 or 5.6
 * Nginx
 * PHP - Plugins
-  * xdebug ✨
+  * xdebug v3.x ✨
   * mcrypt
   * gd
   * mysql (only for php5.6)

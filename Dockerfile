@@ -22,12 +22,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 	&& rm -rf /var/cache/apt/*
 
 
-ARG PECL_EXT="xdebug-2.9.2 mcrypt-1.0.3 imagick-3.4.4"
+ARG PECL_EXT="xdebug-3.0.4 mcrypt-1.0.4 imagick-3.5.1"
 RUN pecl install $PECL_EXT
 
 ARG PHP_EXT="gd mysqli pdo_mysql opcache pspell bcmath exif zip"
 RUN docker-php-ext-configure gd --with-freetype-dir=/usr --with-jpeg-dir=/usr --with-png-dir=/usr; \
-		docker-php-ext-install -j "$(nproc)" $PHP_EXT
+	docker-php-ext-install -j "$(nproc)" $PHP_EXT
 
 ARG ENABLE_EXT="xdebug mcrypt imagick"
 RUN docker-php-ext-enable $ENABLE_EXT
