@@ -1,5 +1,5 @@
-ARG MYAPP_IMAGE=php:7-fpm
-FROM $MYAPP_IMAGE
+ARG FROM_IMAGE=php:7-fpm
+FROM $FROM_IMAGE
 
 LABEL maintainer="Carlos A. Gomes <carlos.algms@gmail.com>"
 
