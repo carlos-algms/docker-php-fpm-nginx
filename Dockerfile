@@ -3,7 +3,7 @@ FROM $FROM_IMAGE
 
 LABEL maintainer="Carlos A. Gomes <carlos.algms@gmail.com>"
 
-RUN apt-get update
+RUN apt-get update \
 	&& apt-get upgrade -y \
 	&& apt-get install -y --no-install-recommends \
 		aspell \
