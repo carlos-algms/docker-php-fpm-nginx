@@ -3,7 +3,9 @@ FROM $FROM_IMAGE
 
 LABEL maintainer="Carlos A. Gomes <carlos.algms@gmail.com>"
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN apt-get update
+	&& apt-get upgrade -y \
+	&& apt-get install -y --no-install-recommends \
 		aspell \
 		gettext-base \
 		libfreetype6-dev \
