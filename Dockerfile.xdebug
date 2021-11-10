@@ -1,0 +1,8 @@
+ARG FROM_IMAGE
+FROM $FROM_IMAGE
+
+ARG PECL_EXT="xdebug-3.0.4"
+RUN pecl install $PECL_EXT
+
+ARG ENABLE_EXT="xdebug"
+RUN docker-php-ext-enable $ENABLE_EXT
