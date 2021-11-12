@@ -29,6 +29,9 @@ ARG PECL_EXT="mcrypt-1.0.4 imagick-3.5.1"
 ARG PHP_EXT="gd mysqli pdo_mysql opcache pspell bcmath exif zip pcntl"
 ARG ENABLE_EXT="mcrypt imagick"
 
+# These libs are different from php >= 7 and 5.x
+ARG VARIABLE_LIBS="libmagickwand-6.q16-6"
+
 RUN apt-get update \
 	&& apt-get install -y --no-install-recommends \
 		## shared libraries that must stay
@@ -38,7 +41,7 @@ RUN apt-get update \
 		libmcrypt4 \
 		libfreetype6 \
 		libjpeg62-turbo \
-		libmagickwand-6.q16-6 \
+		${VARIABLE_LIBS} \
 		imagemagick-6-common \
 		libpng16-16 \
 		libaspell15 \

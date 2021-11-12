@@ -41,8 +41,8 @@ build_71:
 		-f Dockerfile \
 		--build-arg FROM_IMAGE=php:$(TAG)-fpm \
 		--build-arg PECL_EXT="$(PECL_EXT)" \
-		--build-arg PHP_EXT="$(PHP_EXT)" \
 		--build-arg ENABLE_EXT="$(ENABLE_EXT)" \
+		--build-arg PHP_EXT="$(PHP_EXT)" \
 
 	docker build --rm . \
 		-t $(IMAGE):$(TAG)-xdebug \
@@ -52,17 +52,21 @@ build_71:
 
 
 build_5: TAG=5.6
+build_5: VARIABLE_LIBS="libmagickwand-6.q16-3"
 build_5: PECL_EXT=imagick-3.4.4
+build_5: ENABLE_EXT=imagick
+build_5: GD_CONFIG=--with-freetype-dir=/usr --with-jpeg-dir=/usr --with-png-dir=/usr
 build_5: PHP_EXT=gd mysqli pdo_mysql opcache pspell bcmath exif zip pcntl mcrypt mysql
-build_5: ENABLE_EXT=xdebug mcrypt imagick
 build_5:
 	docker build --rm . \
 		-t $(IMAGE):$(TAG) \
 		-f Dockerfile \
 		--build-arg FROM_IMAGE=php:$(TAG)-fpm \
 		--build-arg PECL_EXT="$(PECL_EXT)" \
-		--build-arg PHP_EXT="$(PHP_EXT)" \
 		--build-arg ENABLE_EXT="$(ENABLE_EXT)" \
+		--build-arg GD_CONFIG="$(GD_CONFIG)" \
+		--build-arg PHP_EXT="$(PHP_EXT)" \
+		--build-arg VARIABLE_LIBS="$(VARIABLE_LIBS)" \
 
 	docker build --rm . \
 		-t $(IMAGE):$(TAG)-xdebug \
