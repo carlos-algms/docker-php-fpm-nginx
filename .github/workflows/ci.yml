@@ -23,7 +23,7 @@ jobs:
         run: make build
 
       - name: Publish PHP 8
-        run: make publish
+        run: TAG=8 make publish
 
   php_7:
     runs-on: ubuntu-latest
@@ -41,7 +41,7 @@ jobs:
         run: make build_7
 
       - name: Publish PHP 7
-        run: make publish_7
+        run: TAG=7 make publish
 
   php_71:
     runs-on: ubuntu-latest
@@ -59,7 +59,7 @@ jobs:
         run: make build_71
 
       - name: Publish PHP 7.1
-        run: make publish_71
+        run: TAG=7.1 make publish
 
   php_5:
     runs-on: ubuntu-latest
@@ -77,4 +77,4 @@ jobs:
         run: make build_5
 
       - name: Publish PHP 5
-        run: make publish_5
+        run: TAG=5.6 make publish
