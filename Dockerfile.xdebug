@@ -6,3 +6,5 @@ RUN pecl install $PECL_EXT
 
 ARG ENABLE_EXT="xdebug"
 RUN docker-php-ext-enable $ENABLE_EXT
+
+COPY ["xdebug.ini", "/usr/local/etc/php/conf.d/"]

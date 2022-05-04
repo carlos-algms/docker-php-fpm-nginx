@@ -25,7 +25,7 @@ RUN apt-get update \
 	&& ln -sfn /dev/stderr /var/log/nginx/error.log
 
 
-ARG PECL_EXT="mcrypt-1.0.4 imagick-3.5.1"
+ARG PECL_EXT="mcrypt-1.0.4 imagick-3.7.0"
 ARG PHP_EXT="gd mysqli pdo_mysql opcache pspell bcmath exif zip pcntl"
 ARG ENABLE_EXT="mcrypt imagick"
 
@@ -55,7 +55,7 @@ RUN apt-get update \
 		libpng-dev \
 		libpspell-dev \
 		libzip-dev \
-	&& pecl install $PECL_EXT \
+	&& pecl install -n $PECL_EXT \
 	&& docker-php-ext-enable $ENABLE_EXT \
 	&& docker-php-ext-configure gd --with-freetype --with-jpeg \
 	&& docker-php-ext-install -j "$(nproc)" $PHP_EXT \
@@ -90,7 +90,6 @@ ENTRYPOINT ["tini", "--"]
 
 COPY ["default-site.conf", "/etc/nginx/sites-available/default"]
 COPY ["snippets/*", "/etc/nginx/snippets/"]
-COPY ["xdebug.ini", "/usr/local/etc/php/conf.d/"]
 COPY ["php.ini", "/usr/local/etc/php/conf.d/"]
 COPY ["php-nginx-supervisor.conf", "/etc/supervisor/conf.d/"]
 COPY ["php-fpm-log.conf", "/usr/local/etc/php-fpm.d/"]
