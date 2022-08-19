@@ -1,4 +1,4 @@
-ARG FROM_IMAGE=alpine:3.15
+ARG FROM_IMAGE=alpine:3.16
 FROM $FROM_IMAGE
 
 ARG BUILD_DATE
@@ -10,7 +10,8 @@ LABEL maintainer="carlosalgms"
 
 ENV PS1="$(whoami)@$(hostname):$(pwd)\\$ " \
 HOME="/root" \
-TERM="xterm"
+TERM="xterm" \
+PHP_VERSION=${PHP_VER}
 
 ENTRYPOINT ["/sbin/tini", "--", "/init"]
 
@@ -41,14 +42,6 @@ RUN echo "**** create user and make our folders ****" && \
     /app \
     /config \
     /defaults
-
-RUN echo "**** configure Nginx ****" && \
-  rm -f /etc/nginx/http.d/default.conf && \
-  sed -i 's#^user nginx;#user www-data;#g' /etc/nginx/nginx.conf && \
-  sed -i 's#/var/log/#/config/log/#g' /etc/nginx/nginx.conf && \
-  sed -i 's#client_max_body_size 1m;#client_max_body_size 0;#g' /etc/nginx/nginx.conf && \
-  sed -i 's#include /etc/nginx/http.d/\*.conf;#include /config/nginx/site-confs/\*.conf;#g' /etc/nginx/nginx.conf && \
-  sed -ie  '$a\\n\ndaemon off;\npid /run/nginx.pid;\n' /etc/nginx/nginx.conf
 
 
 ## Todo: move it to the top level install
@@ -82,16 +75,25 @@ RUN \
     php${PHP_VER}-pecl-imagick \
     php${PHP_VER}-pecl-mcrypt
 
+
 RUN \
-  mv /etc/php${PHP_VER} /etc/php && \
-  ln -s /etc/php /etc/php${PHP_VER} && \
-  ln -s /usr/bin/php${PHP_VER} /usr/bin/php && \
-  ln -s /usr/sbin/php-fpm8 /usr/sbin/php-fpm && \
-  sed -i "s#user = nobody.*#user = www-data#g" \
-    /etc/php${PHP_VER}/php-fpm.d/www.conf && \
-  sed -i "s#group = nobody.*#group = www-data#g" \
-    /etc/php${PHP_VER}/php-fpm.d/www.conf && \
-  sed -ie  '$a\\n\ninclude=/config/php/php-fpm.d/*.conf\n' /etc/php/php-fpm.conf
+  echo "**** configure Nginx ****" && \
+    rm -f /etc/nginx/http.d/default.conf && \
+    sed -i 's#^user nginx;#user www-data;#g' /etc/nginx/nginx.conf && \
+    sed -i 's#/var/log/#/config/log/#g' /etc/nginx/nginx.conf && \
+    sed -i 's#client_max_body_size 1m;#client_max_body_size 0;#g' /etc/nginx/nginx.conf && \
+    sed -i 's#include /etc/nginx/http.d/\*.conf;#include /config/nginx/site-confs/\*.conf;#g' /etc/nginx/nginx.conf && \
+    echo -e  '\n\ndaemon off;\npid /run/nginx.pid;\n' >> /etc/nginx/nginx.conf && \
+  echo "**** configure PHP ****" && \
+    mv /etc/php${PHP_VER} /etc/php && \
+    ln -s /etc/php /etc/php${PHP_VER} && \
+    [ ! -f "/usr/bin/php" ] &&  ln -s /usr/bin/php${PHP_VER} /usr/bin/php || true  && \
+    ln -s /usr/sbin/php-fpm8 /usr/sbin/php-fpm && \
+    sed -i "s#user = nobody.*#user = www-data#g" \
+      /etc/php${PHP_VER}/php-fpm.d/www.conf && \
+    sed -i "s#group = nobody.*#group = www-data#g" \
+      /etc/php${PHP_VER}/php-fpm.d/www.conf && \
+    echo -e  '\n\ninclude=/config/php/php-fpm.d/*.conf\n' >> /etc/php/php-fpm.conf
 
 
 # add local files
