@@ -1,101 +1,98 @@
-ARG FROM_IMAGE=php:8-fpm
+ARG FROM_IMAGE=alpine:3.15
 FROM $FROM_IMAGE
 
-LABEL maintainer="Carlos Gomes <carlos.algms@gmail.com>"
+ARG BUILD_DATE
+ARG VERSION
+ARG PHP_VER=8
 
-ARG DEPLOYER_VERSION="v6.8.0"
+LABEL build_version="version:- ${VERSION} Build-date:- ${BUILD_DATE}"
+LABEL maintainer="carlosalgms"
 
-RUN apt-get update \
-	&& apt-get upgrade -y \
-	&& apt-get install -y --no-install-recommends \
-		zsh \
-		vim \
-		make \
-		ca-certificates \
-		nginx \
-		supervisor \
-	&& apt-get autoremove -y --purge \
-	&& apt-get autoclean \
-	&& apt-get clean \
-	&& rm -rf /var/cache/debconf/*-old \
-	&& rm -rf /usr/share/doc/* \
-	&& rm -rf /var/lib/apt/lists/* \
-	&& rm -rf /var/cache/apt/* \
-	&& ln -sfn /dev/stdout /var/log/nginx/access.log \
-	&& ln -sfn /dev/stderr /var/log/nginx/error.log
+ENV PS1="$(whoami)@$(hostname):$(pwd)\\$ " \
+HOME="/root" \
+TERM="xterm"
 
+ENTRYPOINT ["/sbin/tini", "--", "/init"]
 
-ARG PECL_EXT="mcrypt-1.0.4 imagick-3.7.0"
-ARG PHP_EXT="gd mysqli pdo_mysql opcache pspell bcmath exif zip pcntl"
-ARG ENABLE_EXT="mcrypt imagick"
+RUN apk update && \
+  apk upgrade --no-cache && \
+  apk add --no-cache --upgrade \
+    tini \
+    bash \
+    zsh \
+    htop \
+    ca-certificates \
+    openssl \
+    coreutils \
+    curl \
+    tar \
+    tzdata \
+    xz \
+    procps \
+    shadow \
+    vim \
+    nginx
 
-# These libs are different from php >= 7 and 5.x
-ARG VARIABLE_LIBS="libmagickwand-6.q16-6"
+RUN echo "**** create user and make our folders ****" && \
+  groupmod -g 1000 users && \
+  useradd -u 1000 -g www-data -d /config -s /bin/false www-data && \
+  usermod -G users www-data && \
+  mkdir -p \
+    /app \
+    /config \
+    /defaults
 
-RUN apt-get update \
-	&& apt-get install -y --no-install-recommends \
-		## shared libraries that must stay
-		aspell \
-		gettext-base \
-		libzip4 \
-		libmcrypt4 \
-		libfreetype6 \
-		libjpeg62-turbo \
-		${VARIABLE_LIBS} \
-		imagemagick-6-common \
-		libpng16-16 \
-		libaspell15 \
-		libzip4 \
-		zlib1g \
-	## the next ones must be uninstalled after build
-		libfreetype6-dev \
-		libjpeg62-turbo-dev \
-		libmagickwand-dev \
-		libmcrypt-dev \
-		libpng-dev \
-		libpspell-dev \
-		libzip-dev \
-	&& pecl install -n $PECL_EXT \
-	&& docker-php-ext-enable $ENABLE_EXT \
-	&& docker-php-ext-configure gd --with-freetype --with-jpeg \
-	&& docker-php-ext-install -j "$(nproc)" $PHP_EXT \
-	# remove packages used only to build PHP extensions
-	&& apt-get remove -y --purge \
-		libfreetype6-dev \
-		libjpeg62-turbo-dev \
-		libmagickwand-dev \
-		libmcrypt-dev \
-		libpng-dev \
-		libpspell-dev \
-		libzip-dev \
-	&& apt-get autoremove -y --purge \
-	&& apt-get autoclean \
-	&& apt-get clean \
-	&& rm -rf /var/cache/debconf/*-old \
-	&& rm -rf /usr/share/doc/* \
-	&& rm -rf /var/lib/apt/lists/* \
-	&& rm -rf /var/cache/apt/*
+RUN echo "**** configure Nginx ****" && \
+  rm -f /etc/nginx/http.d/default.conf && \
+  sed -i 's#^user nginx;#user www-data;#g' /etc/nginx/nginx.conf && \
+  sed -i 's#/var/log/#/config/log/#g' /etc/nginx/nginx.conf && \
+  sed -i 's#client_max_body_size 1m;#client_max_body_size 0;#g' /etc/nginx/nginx.conf && \
+  sed -i 's#include /etc/nginx/http.d/\*.conf;#include /config/nginx/site-confs/\*.conf;#g' /etc/nginx/nginx.conf && \
+  sed -ie  '$a\\n\ndaemon off;\npid /run/nginx.pid;\n' /etc/nginx/nginx.conf
 
 
-RUN curl "https://getcomposer.org/installer" --output "composer-setup.php" \
-	&& php -r "if (hash_file('sha384', 'composer-setup.php') === '906a84df04cea2aa72f40b5f787e49f22d4c2f19492ac310e8cba5b96ac8b64115ac402c8cd292b8a03482574915d1a8') { echo 'Installer verified'; } else { echo 'Installer corrupt'; } echo PHP_EOL;" \
-	&& php composer-setup.php --install-dir=/usr/local/bin --filename=composer \
-	&& rm "composer-setup.php"
+## Todo: move it to the top level install
+RUN \
+  apk add --no-cache --upgrade \
+    php${PHP_VER} \
+    php${PHP_VER}-fpm \
+    php${PHP_VER}-fileinfo \
+    php${PHP_VER}-json \
+    php${PHP_VER}-mbstring \
+    php${PHP_VER}-openssl \
+    php${PHP_VER}-session \
+    php${PHP_VER}-simplexml \
+    php${PHP_VER}-xml \
+    php${PHP_VER}-xmlwriter \
+    php${PHP_VER}-xmlreader \
+    php${PHP_VER}-xsl \
+    php${PHP_VER}-zlib \
+    php${PHP_VER}-gd \
+    php${PHP_VER}-mysqli \
+    php${PHP_VER}-pdo_mysql \
+    php${PHP_VER}-sqlite3 \
+    php${PHP_VER}-pdo_sqlite \
+    php${PHP_VER}-opcache \
+    php${PHP_VER}-pspell \
+    php${PHP_VER}-bcmath \
+    php${PHP_VER}-exif \
+    php${PHP_VER}-zip \
+    php${PHP_VER}-pcntl \
+    php${PHP_VER}-phar \
+    php${PHP_VER}-pecl-imagick \
+    php${PHP_VER}-pecl-mcrypt
 
-# Add Tini
-ADD https://github.com/krallin/tini/releases/download/v0.19.0/tini /usr/bin/tini
-RUN chmod +x /usr/bin/tini
+RUN \
+  mv /etc/php${PHP_VER} /etc/php && \
+  ln -s /etc/php /etc/php${PHP_VER} && \
+  ln -s /usr/bin/php${PHP_VER} /usr/bin/php && \
+  ln -s /usr/sbin/php-fpm8 /usr/sbin/php-fpm && \
+  sed -i "s#user = nobody.*#user = www-data#g" \
+    /etc/php${PHP_VER}/php-fpm.d/www.conf && \
+  sed -i "s#group = nobody.*#group = www-data#g" \
+    /etc/php${PHP_VER}/php-fpm.d/www.conf && \
+  sed -ie  '$a\\n\ninclude=/config/php/php-fpm.d/*.conf\n' /etc/php/php-fpm.conf
 
-ENTRYPOINT ["tini", "--"]
 
-COPY ["default-site.conf", "/etc/nginx/sites-available/default"]
-COPY ["snippets/*", "/etc/nginx/snippets/"]
-COPY ["php.ini", "/usr/local/etc/php/conf.d/"]
-COPY ["php-nginx-supervisor.conf", "/etc/supervisor/conf.d/"]
-COPY ["php-fpm-log.conf", "/usr/local/etc/php-fpm.d/"]
-
-COPY ["zshrc", "/root/.zshrc"]
-
-CMD export ROOT_PATH=${ROOT_PATH:-/var/www/html} && \
-	envsubst < /etc/nginx/snippets/root.conf.template > /etc/nginx/snippets/root.conf && \
-	/usr/bin/supervisord -c /etc/supervisor/supervisord.conf -n
+# add local files
+COPY root-fs/ /

@@ -1,8 +1,9 @@
-IMAGE=carlosalgms/docker-php-fpm-nginx-alpine
+IMAGE=carlosalgms/docker-php-fpm-nginx
 
 LATEST=8
 TAG?=$(LATEST)
 XDEBUG_VERSION?=3.1.1
+BASE_EXT?=gd mysqli pdo_mysql opcache pspell bcmath exif zip pcntl
 
 # Cache the previous build to leverage Docker's layer feature
 # https://andrewlock.net/caching-docker-layers-on-serverless-build-hosts-with-multi-stage-builds---target,-and---cache-from/
@@ -13,7 +14,8 @@ docker buildx build --rm . \
 	--cache-from $(IMAGE):$(TAG) \
 	--cache-to type=inline \
 	-t $(IMAGE):$(TAG) \
-	-f Dockerfile
+	-f Dockerfile \
+	--build-arg FROM_IMAGE=php:$(TAG)-fpm
 endef
 
 

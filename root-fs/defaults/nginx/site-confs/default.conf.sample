@@ -1,0 +1,31 @@
+
+server {
+  listen 80 default_server;
+  listen [::]:80 default_server;
+
+  server_name _;
+
+  set $root /app/public;
+
+  if (!-d /app/public) {
+      set $root /app;
+  }
+
+  root $root;
+  index index.html index.htm index.php;
+
+  location / {
+    try_files $uri $uri/ /index.html /index.php?$args =404;
+  }
+
+  location ~ .*\.php$ {
+    include /etc/nginx/snippets/fastcgi-php.conf;
+    fastcgi_pass 127.0.0.1:9000;
+  }
+
+
+  # deny access to .htaccess/.htpasswd files
+  location ~ /\.ht {
+    deny all;
+  }
+}
