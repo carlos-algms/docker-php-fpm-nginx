@@ -9,13 +9,20 @@ groupmod -o -g "$PGID" www-data
 usermod -o -u "$PUID" www-data
 
 echo "
--------------------------------------
+----------------------
 GID/UID
--------------------------------------
+----------------------
 User uid:    $(id -u www-data)
 User gid:    $(id -g www-data)
--------------------------------------
+----------------------
 "
+
+nginx -v
+echo "
+----------------------
+"
+php -v
+
 
 mkdir -p \
   /config/{keys,php,www} \

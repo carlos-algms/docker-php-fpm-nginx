@@ -4,8 +4,9 @@ PHP_VER?=8
 LATEST=$(PHP_VER)-alpine
 TAG?=$(LATEST)
 FROM_IMAGE?=alpine:3.16
-VARIABLE_DEPS?=""
 EXTRA_REPO?=""
+VARIABLE_DEPS?=""
+XDEBUG_PKG?="php$(PHP_VER)-pecl-xdebug"
 
 
 # Cache the previous build to leverage Docker's layer feature
@@ -34,10 +35,10 @@ docker buildx build --rm . \
 	--cache-from $(IMAGE):$(TAG)-xdebug \
 	--cache-to type=inline \
 	-t $(IMAGE):$(TAG)-xdebug \
-	--build-arg VERSION=$(TAG) \
-	--build-arg BUILD_DATE=$(shell date) \
-	--build-arg FROM_IMAGE=$(FROM_IMAGE) \
-	--build-arg PHP_VER=$(PHP_VER) \
+	--build-arg VERSION=$(TAG)-xdebug \
+	--build-arg BUILD_DATE="$(shell date)" \
+	--build-arg FROM_IMAGE=$(IMAGE):$(TAG) \
+	--build-arg XDEBUG_PKG=$(XDEBUG_PKG) \
 	-f Dockerfile.xdebug
 endef
 
@@ -45,7 +46,7 @@ endef
 
 build:
 	$(BASE_BUILD)
-#	$(BUILD_XDEBUG)
+	$(BUILD_XDEBUG)
 
 ## https://pkgs.alpinelinux.org/packages
 ### Alpine 3.15 is the last one with php7 available

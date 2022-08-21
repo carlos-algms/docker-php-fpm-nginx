@@ -1,4 +1,5 @@
 [Xdebug]
+zend_extension=xdebug.so
 xdebug.scream=0
 xdebug.cli_color=1
 
