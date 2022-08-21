@@ -37,7 +37,7 @@ RUN \
     nginx
 
 ARG PHP_VER=8
-ARG VARIABLE_DEPS=" php${PHP_VER}-pecl-imagick php${PHP_VER}-pecl-mcrypt "
+ARG VARIABLE_DEPS=" php${PHP_VER}-pecl-mcrypt "
 
 RUN \
   apk add --no-cache --upgrade --force \
