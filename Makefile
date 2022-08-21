@@ -1,8 +1,12 @@
-IMAGE=carlosalgms/docker-php-fpm-nginx-alpine
+IMAGE=carlosalgms/docker-php-fpm-nginx
 
-LATEST=8
+PHP_VER?=8
+LATEST=$(PHP_VER)-alpine
 TAG?=$(LATEST)
-XDEBUG_VERSION?=3.1.1
+FROM_IMAGE?=alpine:3.16
+VARIABLE_DEPS?=""
+EXTRA_REPO?=""
+
 
 # Cache the previous build to leverage Docker's layer feature
 # https://andrewlock.net/caching-docker-layers-on-serverless-build-hosts-with-multi-stage-builds---target,-and---cache-from/
@@ -13,16 +17,15 @@ docker buildx build --rm . \
 	--cache-from $(IMAGE):$(TAG) \
 	--cache-to type=inline \
 	-t $(IMAGE):$(TAG) \
+	--build-arg VERSION=$(TAG) \
+	--build-arg BUILD_DATE="$(shell date)" \
+	--build-arg FROM_IMAGE=$(FROM_IMAGE) \
+	--build-arg PHP_VER="$(PHP_VER)" \
+	--build-arg VARIABLE_DEPS="$(VARIABLE_DEPS)" \
+	--build-arg EXTRA_REPO="$(EXTRA_REPO)" \
 	-f Dockerfile
 endef
 
-
-define BUILD_WITH_ARGS
-$(BASE_BUILD) \
-	--build-arg PECL_EXT="$(PECL_EXT)" \
-	--build-arg ENABLE_EXT="$(ENABLE_EXT)" \
-	--build-arg PHP_EXT="$(PHP_EXT)"
-endef
 
 
 define BUILD_XDEBUG
@@ -31,45 +34,39 @@ docker buildx build --rm . \
 	--cache-from $(IMAGE):$(TAG)-xdebug \
 	--cache-to type=inline \
 	-t $(IMAGE):$(TAG)-xdebug \
-	-f Dockerfile.xdebug \
-	--build-arg PECL_EXT="xdebug-$(XDEBUG_VERSION)" \
-	--build-arg FROM_IMAGE=$(IMAGE):$(TAG)
+	--build-arg VERSION=$(TAG) \
+	--build-arg BUILD_DATE=$(shell date) \
+	--build-arg FROM_IMAGE=$(FROM_IMAGE) \
+	--build-arg PHP_VER=$(PHP_VER) \
+	-f Dockerfile.xdebug
 endef
 
 
 
 build:
 	$(BASE_BUILD)
-	$(BUILD_XDEBUG)
+#	$(BUILD_XDEBUG)
 
-
-build_7: TAG:=7
-build_7: XDEBUG_VERSION:=3.0.4
+## https://pkgs.alpinelinux.org/packages
+### Alpine 3.15 is the last one with php7 available
+build_7: TAG:=7-alpine
+build_7: FROM_IMAGE:=alpine:3.15
+build_7: PHP_VER:=7
 build_7: build
 
+### Alpine 3.7 is the last one with php7.1 available, check if is it safe to use higher PHP versions on my Apps
+build_71: TAG:=7.1-alpine
+build_71: PHP_VER:=7
+build_71: EXTRA_REPO:=3.7
+build_71: VARIABLE_DEPS:=php7-mcrypt php7-imagick
+build_71: build
 
-build_71: TAG:=7.1
-build_71: PECL_EXT:=imagick-3.5.1
-build_71: ENABLE_EXT:=imagick
-build_71: PHP_EXT:=$(BASE_EXT) mcrypt
-build_71: XDEBUG_VERSION:=2.9.8
-build_71:
-	$(BUILD_WITH_ARGS)
-	$(BUILD_XDEBUG)
-
-
-build_5: TAG:=5.6
-build_5: VARIABLE_LIBS:=libmagickwand-6.q16-3
-build_5: PECL_EXT:=imagick-3.4.4
-build_5: ENABLE_EXT:=imagick
-build_5: GD_CONFIG:=--with-freetype-dir=/usr --with-jpeg-dir=/usr --with-png-dir=/usr
-build_5: PHP_EXT:=$(BASE_EXT) mcrypt mysql
-build_5: XDEBUG_VERSION:=2.5.5
-build_5:
-	$(BUILD_WITH_ARGS) \
-		--build-arg GD_CONFIG="$(GD_CONFIG)" \
-		--build-arg VARIABLE_LIBS="$(VARIABLE_LIBS)"
-	$(BUILD_XDEBUG)
+### Alpine 3.8 is the last one with php5.6 available
+build_5: TAG:=5.6-alpine
+build_5: EXTRA_REPO:=3.8
+build_5: VARIABLE_DEPS:=php5-mcrypt php7-imagick
+build_5: PHP_VER:=5
+build_5: build
 
 
 publish:
@@ -81,4 +78,4 @@ publish:
 	fi
 
 
-.PHONY: build build_7 build_71 build_5 publish pull_for_cache
+.PHONY: build build_7 build_71 build_5 publish
