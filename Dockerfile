@@ -36,24 +36,6 @@ RUN \
     vim \
     nginx
 
-RUN \
-  echo "**** create user and make our folders ****" && \
-    groupmod -g 1000 users && \
-    useradd -u 1000 -g www-data -d /config -s /bin/false www-data && \
-    usermod -G users www-data && \
-    mkdir -p \
-      /app \
-      /config \
-      /defaults && \
-  echo "**** configure Nginx ****" && \
-    rm -f /etc/nginx/http.d/default.conf && \
-    sed -i 's#^user nginx;#user www-data;#g' /etc/nginx/nginx.conf && \
-    sed -i 's#/var/log/#/config/log/#g' /etc/nginx/nginx.conf && \
-    sed -i 's#client_max_body_size 1m;#client_max_body_size 0;#g' /etc/nginx/nginx.conf && \
-    sed -i 's#include /etc/nginx/http.d/\*.conf;#include /config/nginx/site-confs/\*.conf;#g' /etc/nginx/nginx.conf && \
-    echo -e  '\n\ndaemon off;\npid /run/nginx.pid;\n' >> /etc/nginx/nginx.conf
-
-
 ARG PHP_VER=8
 ARG VARIABLE_DEPS=" php${PHP_VER}-pecl-imagick php${PHP_VER}-pecl-mcrypt "
 
@@ -89,18 +71,26 @@ RUN \
 
 
 RUN \
+  echo "**** create user and make our folders ****" && \
+    groupmod -g 1000 users && \
+    useradd -u 1000 -g www-data -d /config -s /bin/false www-data && \
+    usermod -G users www-data && \
+    mkdir -p \
+      /app \
+      /config \
+      /defaults && \
+  echo "**** configure Nginx ****" && \
+    rm -f /etc/nginx/http.d/default.conf && \
+    sed -i 's#^user nginx;#user www-data;#g' /etc/nginx/nginx.conf && \
+    sed -i 's#/var/log/#/config/log/#g' /etc/nginx/nginx.conf && \
+    sed -i 's#client_max_body_size 1m;#client_max_body_size 0;#g' /etc/nginx/nginx.conf && \
+    sed -i 's#include /etc/nginx/http.d/\*.conf;#include /config/nginx/site-confs/\*.conf;#g' /etc/nginx/nginx.conf && \
+    printf '\n\npid /run/nginx.pid;\n' >> /etc/nginx/nginx.conf && \
   echo "**** configure PHP ****" && \
     mv /etc/php${PHP_VER} /etc/php && \
     ln -s /etc/php /etc/php${PHP_VER} && \
     ! (command -v php &> /dev/null) && ln -s `command -v php${PHP_VER}` /usr/bin/php || true  && \
-    ! (command -v php-fpm &> /dev/null) &&  ln -s `which php-fpm${PHP_VER}` /usr/bin/php-fpm || true  && \
-    ln -s /usr/sbin/php-fpm8 /usr/sbin/php-fpm && \
-    sed -i "s#user = nobody.*#user = www-data#g" \
-      /etc/php${PHP_VER}/php-fpm.d/www.conf && \
-    sed -i "s#group = nobody.*#group = www-data#g" \
-      /etc/php${PHP_VER}/php-fpm.d/www.conf && \
-    echo -e  '\n\ninclude=/config/php/php-fpm.d/*.conf\n' >> /etc/php/php-fpm.conf
-
+    ! (command -v php-fpm &> /dev/null) &&  ln -s `which php-fpm${PHP_VER}` /usr/sbin/php-fpm || true
 
 # add local files
 COPY root-fs/ /

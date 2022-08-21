@@ -25,7 +25,6 @@ php -v
 
 
 mkdir -p \
-  /config/{keys,php,www} \
   /config/log/{nginx,php} \
   /config/nginx/site-confs \
   /config/php/php-fpm.d \
@@ -42,7 +41,7 @@ chown -R www-data:www-data \
     /var/{lib,tmp}/nginx
 
 chmod -R g+w \
-    /config/{nginx,www}
+    /config/nginx
 
 # Copy the default config file if they don't exist
 find /config/nginx/site-confs -maxdepth 0 -empty \

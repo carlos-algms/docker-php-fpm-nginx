@@ -4,7 +4,7 @@ FROM $FROM_IMAGE
 ARG XDEBUG_PKG
 
 RUN \
-  apk add --no-cache --upgrade --force \
+  apk add --no-cache \
     ${XDEBUG_PKG} && \
   mv \
     /defaults/php/conf.d/xdebug.ini.sample \

@@ -61,6 +61,7 @@ build_71: TAG:=7.1-alpine
 build_71: PHP_VER:=7
 build_71: EXTRA_REPO:=3.7
 build_71: VARIABLE_DEPS:=php7-mcrypt php7-imagick
+build_71: XDEBUG_PKG:="php7-xdebug"
 build_71: build
 
 
