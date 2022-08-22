@@ -11,13 +11,16 @@ TERM="xterm"
 
 ENTRYPOINT ["/sbin/tini", "--", "/init"]
 
+ARG PHP_VER=81
+ARG VARIABLE_DEPS=" php${PHP_VER}-pecl-mcrypt "
+
+
 RUN \
   ( \
     [ ! -z "${EXTRA_REPO}" ] && \
     echo "http://dl-cdn.alpinelinux.org/alpine/v${EXTRA_REPO}/main" >> /etc/apk/repositories && \
     echo "http://dl-cdn.alpinelinux.org/alpine/v${EXTRA_REPO}/community" >> /etc/apk/repositories \
   ) || \
-  apk update && \
   apk upgrade --no-cache && \
   apk add --no-cache --upgrade \
     bash \
@@ -35,12 +38,7 @@ RUN \
     tzdata \
     vim \
     xz \
-    zsh
-
-ARG PHP_VER=81
-ARG VARIABLE_DEPS=" php${PHP_VER}-pecl-mcrypt "
-
-RUN \
+    zsh && \
   apk add --no-cache --upgrade --force \
     php${PHP_VER} \
     php${PHP_VER}-bcmath \
@@ -97,7 +95,7 @@ RUN \
       /defaults && \
   echo "**** configure Nginx ****" && \
     rm -f /etc/nginx/http.d/default.conf && \
-    sed -i 's#^user nginx;#user www-data;#g' /etc/nginx/nginx.conf && \
+    sed -i 's/^user /#user /g' /etc/nginx/nginx.conf && \
     sed -i 's#/var/log/#/config/log/#g' /etc/nginx/nginx.conf && \
     sed -i 's#client_max_body_size 1m;#client_max_body_size 0;#g' /etc/nginx/nginx.conf && \
     sed -i 's#include /etc/nginx/http.d/\*.conf;#include /config/nginx/site-confs/\*.conf;#g' /etc/nginx/nginx.conf && \

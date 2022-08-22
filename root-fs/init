@@ -43,7 +43,8 @@ chown www-data:www-data /defaults
 
 chown -R www-data:www-data \
     /config \
-    /var/{lib,tmp}/nginx
+    /var/{lib,tmp}/nginx \
+    /run
 
 chmod -R g+w \
     /config/nginx
@@ -65,12 +66,15 @@ echo -e "[global]\ndate.timezone=$TZ\n" > /etc/php/conf.d/timezone.ini
 # Executing the services
 #######
 
-nginx
+# nginx
+su www-data -ps /bin/bash -c "nginx -e /config/log/nginx/error.log"
 
 if [ -z "$@" ]; then
   # using exec otherwise ctrl + C won't work to stop the server
-  exec php-fpm -F
+  # exec php-fpm -F
+  exec su www-data -ps /bin/bash -c "php-fpm -F"
 else
-  php-fpm
+  # php-fpm
+  su www-data -ps /bin/bash -c "php-fpm"
   "$@"
 fi
