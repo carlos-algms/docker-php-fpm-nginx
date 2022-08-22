@@ -52,7 +52,6 @@ RUN \
     php${PHP_VER}-mysqli \
     php${PHP_VER}-opcache \
     php${PHP_VER}-openssl \
-    php${PHP_VER}-pcntl \
     php${PHP_VER}-pdo_mysql \
     php${PHP_VER}-pdo_sqlite \
     php${PHP_VER}-pear \
