@@ -11,7 +11,7 @@ xdebug.remote_connect_back=0
 xdebug.remote_autostart=1
 
 ; v3.x new configuration
-xdebug.mode=debug
+xdebug.mode=debug,develop
 xdebug.start_with_request=yes
 xdebug.discover_client_host=false
 xdebug.client_host=host.docker.internal
