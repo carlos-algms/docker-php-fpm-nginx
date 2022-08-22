@@ -21,8 +21,13 @@ nginx -v
 echo "
 ----------------------
 "
+
 php -v
 
+echo "
+----------------------
+
+"
 
 mkdir -p \
   /config/log/{nginx,php} \
@@ -60,12 +65,11 @@ echo -e "[global]\ndate.timezone=$TZ\n" > /etc/php/conf.d/timezone.ini
 # Executing the services
 #######
 
-exec nginx &
 
 if [ -z "$@" ]; then
   # using exec otherwise ctrl + C won't work to stop the server
-  exec php-fpm -F
+  exec supervisord -c /etc/supervisord.conf --nodaemon
 else
-  php-fpm
+  supervisord -c /etc/supervisord.conf
   "$@"
 fi

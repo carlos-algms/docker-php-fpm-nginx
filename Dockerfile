@@ -20,23 +20,25 @@ RUN \
   apk update && \
   apk upgrade --no-cache && \
   apk add --no-cache --upgrade \
-    tini \
     bash \
-    zsh \
-    htop \
     ca-certificates \
-    openssl \
     coreutils \
     curl \
-    tar \
-    tzdata \
-    xz \
+    htop \
+    logrotate \
+    nginx \
+    openssl \
     procps \
     shadow \
+    supervisor \
+    tar \
+    tini \
+    tzdata \
     vim \
-    nginx
+    xz \
+    zsh
 
-ARG PHP_VER=8
+ARG PHP_VER=81
 ARG VARIABLE_DEPS=" php${PHP_VER}-pecl-mcrypt "
 
 RUN \
@@ -84,12 +86,15 @@ RUN \
     sed -i 's#/var/log/#/config/log/#g' /etc/nginx/nginx.conf && \
     sed -i 's#client_max_body_size 1m;#client_max_body_size 0;#g' /etc/nginx/nginx.conf && \
     sed -i 's#include /etc/nginx/http.d/\*.conf;#include /config/nginx/site-confs/\*.conf;#g' /etc/nginx/nginx.conf && \
-    printf '\n\npid /run/nginx.pid;\n' >> /etc/nginx/nginx.conf && \
+    printf '\n\npid /run/nginx.pid;\n\n' >> /etc/nginx/nginx.conf && \
   echo "**** configure PHP ****" && \
     mv /etc/php${PHP_VER} /etc/php && \
     ln -s /etc/php /etc/php${PHP_VER} && \
     ! (command -v php &> /dev/null) && ln -s `command -v php${PHP_VER}` /usr/bin/php || true  && \
-    ! (command -v php-fpm &> /dev/null) &&  ln -s `which php-fpm${PHP_VER}` /usr/sbin/php-fpm || true
+    ! (command -v php-fpm &> /dev/null) &&  ln -s `which php-fpm${PHP_VER}` /usr/sbin/php-fpm || true && \
+  echo "**** fix logrotate ****" && \
+  sed -i 's#/usr/sbin/logrotate /etc/logrotate.conf#/usr/sbin/logrotate /etc/logrotate.conf -s /config/log/logrotate.status#g' \
+    /etc/periodic/daily/logrotate
 
 # add local files
 COPY root-fs/ /
