@@ -8,7 +8,7 @@
   missingok
   sharedscripts
   postrotate
-    supervisorctl signal USR1 nginx
+    nginx -s reopen
   endscript
   su www-data www-data
 }

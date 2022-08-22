@@ -8,7 +8,7 @@
   missingok
   sharedscripts
   postrotate
-    supervisorctl signal USR1 php-fpm
+    pkill -USR1 --pidfile /run/php-fpm.pid
   endscript
   su www-data www-data
 }

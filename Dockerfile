@@ -30,7 +30,6 @@ RUN \
     openssl \
     procps \
     shadow \
-    supervisor \
     tar \
     tini \
     tzdata \
@@ -104,8 +103,7 @@ RUN \
     sed -i 's#include /etc/nginx/http.d/\*.conf;#include /config/nginx/site-confs/\*.conf;#g' /etc/nginx/nginx.conf && \
     printf '\n\npid /run/nginx.pid;\n\n' >> /etc/nginx/nginx.conf && \
   echo "**** fix logrotate ****" && \
-  sed -i 's#/usr/sbin/logrotate /etc/logrotate.conf#/usr/sbin/logrotate /etc/logrotate.conf -s /config/log/logrotate.status#g' \
-    /etc/periodic/daily/logrotate
+    find /etc/logrotate.d \( -name nginx -o -name "php-fpm?" \) -exec echo rm {} \;  -exec rm {} \;
 
 # add local files
 COPY root-fs/ /
