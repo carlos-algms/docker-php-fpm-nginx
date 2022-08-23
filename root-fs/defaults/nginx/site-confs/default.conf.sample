@@ -5,13 +5,7 @@ server {
 
   server_name _;
 
-  set $root /app/public;
-
-  if (!-d /app/public) {
-      set $root /app;
-  }
-
-  root $root;
+  root /app/public;
   index index.html index.htm index.php;
 
   location / {
