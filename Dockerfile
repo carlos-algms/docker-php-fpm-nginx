@@ -106,6 +106,7 @@ RUN \
 # add local files
 COPY root-fs/ /
 
+EXPOSE 8080 9000
 
 ARG BUILD_DATE
 ARG VERSION

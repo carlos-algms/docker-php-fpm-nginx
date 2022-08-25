@@ -22,7 +22,7 @@ services:
     container_name: site
     image: carlosalgms/docker-php-fpm-nginx:8-alpine
     ports:
-      - 8080:80
+      - 8080:8080
     volumes:
       - ./build/public:/app/public
       - ./config:/config
