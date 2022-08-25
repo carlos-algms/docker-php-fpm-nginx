@@ -1,0 +1,79 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+PUID=${PUID:-1000}
+PGID=${PGID:-1000}
+
+groupmod -o -g "$PGID" www-data
+usermod -o -u "$PUID" www-data
+
+echo "
+----------------------
+GID/UID
+----------------------
+User uid:    $(id -u www-data)
+User gid:    $(id -g www-data)
+----------------------
+"
+
+nginx -v
+echo "
+----------------------
+"
+
+php -v
+
+echo "
+----------------------
+
+"
+
+mkdir -p \
+  /config/log/{nginx,php} \
+  /config/nginx/site-confs \
+  /config/php/php-fpm.d \
+  /run \
+  /var/lib/nginx/tmp/client_body \
+  /var/tmp/nginx
+
+chown www-data:www-data /app
+chown www-data:www-data /config
+chown www-data:www-data /defaults
+
+chown -R www-data:www-data \
+    /config \
+    /var/{lib,tmp}/nginx \
+    /run
+
+chmod -R g+w \
+    /config/nginx
+
+# Copy the default config file if they don't exist
+find /config/nginx/site-confs -maxdepth 0 -empty \
+  -exec cp /defaults/nginx/site-confs/default.conf.sample /config/nginx/site-confs/default.conf \;
+
+find /config/php/php-fpm.d -maxdepth 0 -empty \
+  -exec cp /defaults/php/php-fpm.d/www.conf.sample /config/php/php-fpm.d/www2.conf \;
+
+
+# Update Timezone
+export TZ=${TZ:-"Europe/Berlin"}
+echo "$TZ" >  /etc/timezone
+echo -e "[global]\ndate.timezone=$TZ\n" > /etc/php/conf.d/timezone.ini
+
+#######
+# Executing the services
+#######
+
+## enable job control
+set -m
+
+su www-data -ps /bin/bash -c "nginx -e /config/log/nginx/error.log"
+su www-data -ps /bin/bash -c "php-fpm -F" &
+
+if [ -z "$@" ]; then
+  fg %1
+else
+  "$@"
+fi

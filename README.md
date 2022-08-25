@@ -2,41 +2,97 @@
 
 A docker image running Nginx and PHP-fpm
 
-To be as close as possible to the Production environment.
-
-PS: It was not meant to be a production Image, it includes XDebug.
+#### What is Included? 
+* Nginx
+* PHP 8 and PHP 7.1
+* XDebug v3.x ✨ or v2.5 for PHP 7.1
 
 ## How to use
-Nginx will serve everything under `/var/www/html`  
-Just mount a volume under that folder  
-and, remap the PORTS as you wish:
+Nginx will serve everything under `/app/public`
 
-```shell
-docker run --rm -it -p 8080:80 --volume ./local/path:/var/www/http carlosalgms/docker-php-fpm-nginx:7
+Just mount a volume under that folder and, remap the PORTS as you wish:
+
+#### docker-compose
+
+```yaml
+version: '3.8'
+
+services:
+  site:
+    container_name: site
+    image: carlosalgms/docker-php-fpm-nginx:8-alpine
+    ports:
+      - 8080:80
+    volumes:
+      - ./build/public:/app/public
+      - ./config:/config
+    environment:
+      environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Berlin
 ```
 
-## Change the root path
+## Environment Variables
 
-Frameworks like `Laravel` use a different public path for security reasons.
+- `PUID` and `PGID` will be used to control the user `www-data`, Nginx and PHP will run under this user.
+- `TZ` controls the timezone, defaults to `Europe/Berlin` 
 
-Set the `ROOT_PATH` environment variable to set Nginx `root` direct. 
 
-```shell
-docker run --rm -it -p 8080:80 -e ROOT_PATH=/var/www/public --volume ./local/laravel-project:/var/www/http carlosalgms/docker-php-fpm-nginx:7
+## Customize
+
+If you mount the `/config` folder, you will have access to: 
+
+- Nginx `default.conf`
+- PHP-fpm `www.conf`
+- Log files: error.log and access.log for PHP and Nginx
+
+The folders and files under `/config` will be created on the first run, in case they aren't already there.
+
+#### PHP modules enabled:
 ```
+$ php-fpm -m 
 
-## What is Included? 
+[PHP Modules]
+bcmath
+cgi-fcgi
+Core
+date
+dom
+exif
+fileinfo
+filter
+gd
+hash
+json
+libxml
+mbstring
+mysqli
+mysqlnd
+openssl
+pcre
+PDO
+pdo_mysql
+pdo_sqlite
+Phar
+pspell
+readline
+Reflection
+session
+SimpleXML
+SPL
+sqlite3
+standard
+xdebug
+xml
+xmlreader
+xmlwriter
+xsl
+Zend OPcache
+zip
+zlib
 
-* PHP 8-latest, 7-latest, 7.1, or 5.6
-* Nginx
-* PHP - Plugins
-  * xdebug v3.x ✨ (add the suffix `-xdebug` to a tag: carlosalgms/docker-php-fpm-nginx:7-xdebug)
-  * mcrypt
-  * gd
-  * mysql (only for php5.6)
-  * mysqli
-  * pdo_mysql
-  * opcache
-  * pspell
-  * xml
-  * All others pre-included by default
+[Zend Modules]
+Xdebug
+Zend OPcache
+```

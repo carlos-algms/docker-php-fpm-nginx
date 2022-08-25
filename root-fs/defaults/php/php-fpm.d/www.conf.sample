@@ -1,0 +1,3 @@
+; add properties here and restart the container
+; https://www.php.net/manual/en/install.fpm.configuration.php
+[www]

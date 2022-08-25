@@ -1,0 +1,14 @@
+/config/log/php/*.log {
+  weekly
+  rotate 14
+  notifempty
+  delaycompress
+  compress
+  nodateext
+  missingok
+  sharedscripts
+  postrotate
+    pkill -USR1 --pidfile /run/php-fpm.pid
+  endscript
+  su www-data www-data
+}
