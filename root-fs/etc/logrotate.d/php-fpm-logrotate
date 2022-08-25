@@ -8,7 +8,7 @@
   missingok
   sharedscripts
   postrotate
-    pkill -USR1 --pidfile /run/php-fpm.pid
+    pkill -USR1 --pidfile /run/php-fpm/php-fpm.pid
   endscript
   su www-data www-data
 }

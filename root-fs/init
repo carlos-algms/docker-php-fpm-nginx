@@ -33,7 +33,7 @@ mkdir -p \
   /config/log/{nginx,php} \
   /config/nginx/site-confs \
   /config/php/php-fpm.d \
-  /run \
+  /run/{nginx,php-fpm} \
   /var/lib/nginx/tmp/client_body \
   /var/tmp/nginx
 
@@ -44,7 +44,7 @@ chown www-data:www-data /defaults
 chown -R www-data:www-data \
     /config \
     /var/{lib,tmp}/nginx \
-    /run
+    /run/{nginx,php-fpm}
 
 chmod -R g+w \
     /config/nginx

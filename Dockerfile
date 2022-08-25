@@ -99,7 +99,7 @@ RUN \
     sed -i 's#/var/log/#/config/log/#g' /etc/nginx/nginx.conf && \
     sed -i 's#client_max_body_size 1m;#client_max_body_size 0;#g' /etc/nginx/nginx.conf && \
     sed -i 's#include /etc/nginx/http.d/\*.conf;#include /config/nginx/site-confs/\*.conf;#g' /etc/nginx/nginx.conf && \
-    printf '\n\npid /run/nginx.pid;\n\n' >> /etc/nginx/nginx.conf && \
+    printf '\n\npid /run/nginx/nginx.pid;\n\n' >> /etc/nginx/nginx.conf && \
   echo "**** fix logrotate ****" && \
     find /etc/logrotate.d \( -name nginx -o -name "php-fpm?" \) -exec echo rm {} \;  -exec rm {} \;
 
