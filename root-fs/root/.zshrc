@@ -2,6 +2,7 @@ PROMPT=$'\n'"%B%F{green}%n%f %F{blue}%~%f%b"$'\n'"λ "
 
 alias ls='/bin/ls --color=auto -F --group-directories-first'
 alias ll='ls -l'
+alias lsa='ls -lah'
 alias l='ls -lA'
 
 # Cycle through history based on characters already typed on the line
