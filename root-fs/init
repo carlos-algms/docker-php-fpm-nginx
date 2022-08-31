@@ -30,6 +30,7 @@ echo "
 "
 
 mkdir -p \
+  /config/keys \
   /config/log/{nginx,php} \
   /config/nginx/site-confs \
   /config/php/php-fpm.d \
@@ -56,11 +57,30 @@ find /config/nginx/site-confs -maxdepth 0 -empty \
 find /config/php/php-fpm.d -maxdepth 0 -empty \
   -exec cp /defaults/php/php-fpm.d/www.conf.sample /config/php/php-fpm.d/www2.conf \;
 
+if [[ ! -f /config/nginx/ssl.conf ]]; then
+    cp /defaults/nginx/ssl.conf.sample /config/nginx/ssl.conf
+fi
 
 # Update Timezone
 export TZ=${TZ:-"Europe/Berlin"}
 echo "$TZ" >  /etc/timezone
 echo -e "[global]\ndate.timezone=$TZ\n" > /etc/php/conf.d/timezone.ini
+
+
+#######
+# Generating random keys for self signed ssl
+#######
+
+if [[ ! -f /config/keys/cert.key && ! -f /config/keys/cert.crt ]]; then
+  SUBJECT="/C=DE/ST=BE/L=Berlin/O=Carlos Gomes/OU=CG Server/CN=*"
+  echo "Generating self-signed keys in /config/keys, you can replace these with your own keys if required"
+  openssl req -new -x509 -days 3650 -nodes -out /config/keys/cert.crt -keyout /config/keys/cert.key -subj "$SUBJECT"
+fi
+
+# copy pre-generated dhparams
+if [[ ! -f /config/nginx/dhparams.pem ]]; then
+    cp /defaults/nginx/dhparams.pem.sample /config/nginx/dhparams.pem
+fi
 
 #######
 # Executing the services
