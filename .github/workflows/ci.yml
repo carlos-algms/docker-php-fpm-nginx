@@ -48,7 +48,7 @@ jobs:
           password: ${{ secrets.DOCKER_HUB_TOKEN }}
 
       - name: Build and push ${{ matrix.tag }}
-        id: docker_build
+        id: build_image
         uses: docker/build-push-action@v3
         with:
           context: .
@@ -62,7 +62,7 @@ jobs:
           tags: ${{ env.TAGS }}
 
       - name: Xdebug Build and push ${{ matrix.tag }}
-        id: docker_build
+        id: build_xdebug
         uses: docker/build-push-action@v3
         with:
           context: .
