@@ -108,7 +108,3 @@ COPY root-fs/ /
 
 # Rootless Docker can't bind to 80 and 443 as they are smaller than 1024
 EXPOSE 8080 8443 9000
-
-ARG BUILD_DATE
-ARG VERSION
-LABEL build_version="version:- ${VERSION} Build-date:- ${BUILD_DATE}"

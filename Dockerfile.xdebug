@@ -1,7 +1,7 @@
 ARG FROM_IMAGE
 FROM $FROM_IMAGE
 
-ARG XDEBUG_PKG
+ARG XDEBUG_PKG=php81-pecl-xdebug
 
 RUN \
   apk add --no-cache \
@@ -9,7 +9,3 @@ RUN \
   mv \
     /defaults/php/conf.d/xdebug.ini.sample \
     /etc/php/conf.d/xdebug.ini
-
-ARG BUILD_DATE
-ARG VERSION
-LABEL build_version="version:- ${VERSION} Build-date:- ${BUILD_DATE}"

@@ -20,8 +20,6 @@ docker buildx build --rm . \
 	--cache-to type=inline \
 	--platform linux/amd64,linux/arm64 \
 	-t $(IMAGE):$(TAG) \
-	--build-arg VERSION=$(TAG) \
-	--build-arg BUILD_DATE="$(shell date)" \
 	--build-arg FROM_IMAGE=$(FROM_IMAGE) \
 	--build-arg PHP_VER="$(PHP_VER)" \
 	--build-arg VARIABLE_DEPS="$(VARIABLE_DEPS)" \
@@ -39,8 +37,6 @@ docker buildx build --rm . \
 	--cache-to type=inline \
 	--platform linux/amd64,linux/arm64 \
 	-t $(IMAGE):$(TAG)-xdebug \
-	--build-arg VERSION=$(TAG)-xdebug \
-	--build-arg BUILD_DATE="$(shell date)" \
 	--build-arg FROM_IMAGE=$(IMAGE):$(TAG) \
 	--build-arg XDEBUG_PKG=$(XDEBUG_PKG) \
 	-f Dockerfile.xdebug
