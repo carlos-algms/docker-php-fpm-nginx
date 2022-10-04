@@ -18,6 +18,7 @@ docker pull $(IMAGE):$(TAG) || true; \
 docker buildx build --rm . \
 	--cache-from $(IMAGE):$(TAG) \
 	--cache-to type=inline \
+	--platform linux/amd64,linux/arm64 \
 	-t $(IMAGE):$(TAG) \
 	--build-arg VERSION=$(TAG) \
 	--build-arg BUILD_DATE="$(shell date)" \
@@ -36,6 +37,7 @@ docker pull $(IMAGE):$(TAG)-xdebug || true; \
 docker buildx build --rm . \
 	--cache-from $(IMAGE):$(TAG)-xdebug \
 	--cache-to type=inline \
+	--platform linux/amd64,linux/arm64 \
 	-t $(IMAGE):$(TAG)-xdebug \
 	--build-arg VERSION=$(TAG)-xdebug \
 	--build-arg BUILD_DATE="$(shell date)" \
