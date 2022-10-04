@@ -12,7 +12,8 @@ TERM="xterm"
 ENTRYPOINT ["/sbin/tini", "--", "/init"]
 
 ARG PHP_VER=81
-ARG VARIABLE_DEPS=" php${PHP_VER}-pecl-mcrypt "
+# Alpine 3.16 doesn't include php81-pecl-mcrypt
+ARG VARIABLE_DEPS=" php8-pecl-mcrypt "
 
 
 RUN \
